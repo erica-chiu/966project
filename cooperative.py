@@ -2,14 +2,14 @@ import random
 import math
 
 class Cooperative():
-    def __init__(self, max_iter, environment):
+    def __init__(self, environment, max_iter=10000):
         self.w  = 0.5  #TODO learn this
         self.beta = 4
         self.actions = environment.actions
         self.num_actions = len(self.actions)
         self.q = {}  # (state, a1, a2)
         self.discount = 0.9
-        self.transition = environment.transition
+        self.transition = environment.transitions
         self.states = environment.states
         self.num_states = len(self.states)
         self.rewards = environment.rewards
@@ -31,7 +31,7 @@ class Cooperative():
                                         for a2_ in self.actions:
                                             if self.q[(s_, a1_, a2_)] > max_val:
                                                 max_val = self.q[(s_, a1_, a2_)]
-                                    reward = w*self.rewards[(s,a1,a2,s_)][0] + (1-w)*self.rewards[(s,a1,a2,s_)][1]
+                                    reward = self.w*self.rewards[(s,a1,a2,s_)][0] + (1-self.w)*self.rewards[(s,a1,a2,s_)][1]
                                     self.q[(s,a1, a2)] += self.transition[(s,a1,a2,s_)] * (reward + self.discount* max_val)
     
     """

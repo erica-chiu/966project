@@ -60,7 +60,7 @@ class CoopEnv():
 
         self.goal1 = {self.end_goal: 10}
         self.goal2 = {self.other_goal: 10}
-        self.collab_state = set()
+        self.collab_state = {}
 
 
         self.rewards = {}  #(s, a1, a2, s')
@@ -164,7 +164,7 @@ class CoopEnv():
                     if new2 == self.other_goal:
                         reward[1]= 10
                     if new1 == self.end_goal and new2 == self.other_goal:
-                        self.collab_state.add((s, a1, a2, s_))
+                        self.collab_state[(s, a1, a2, s_)] = 100
                     self.transitions[(s, a1, a2, s_)] = 1
                     self.rewards[(s, a1, a2, s_)] = reward
 

@@ -62,7 +62,7 @@ class MyEnv():
 
         self.goal1 = {self.end_goals[0]: 10, self.end_goals[1]: 20}
         self.goal2 = {self.other_goals[0]: 10, self.other_goals[1]: 20}
-        self.collab_state = set()
+        self.collab_state = {}
 
 
         self.rewards = {}  #(s, a1, a2, s')
@@ -151,7 +151,12 @@ class MyEnv():
                     if new2 in self.other_goals:
                         reward[1]= self.goal2[new2]
                     if new1 in self.end_goals and new2 in self.other_goals:
-                        self.collab_state.add((s,a1,a2,s_))
+                        cooperation_value = 50
+                        if self.goal1[new1] == 20 and self.goal2[new2] == 20:
+                            cooperation_value = 100
+                        elif self.goal1[new1] == 10 and self.goal2[new2] == 10:
+                            cooperation_value = 25
+                        self.collab_state[(s,a1,a2,s_)] = cooperation_value
                     self.transitions[(s, a1, a2, s_)] = 1
                     self.rewards[(s, a1, a2, s_)] = reward
 

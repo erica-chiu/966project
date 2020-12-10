@@ -2,12 +2,12 @@ from env1 import CoopEnv
 from env2 import CompEnv
 from env3 import MyEnv
 
-filename = 'data/pwu1.csv'
-env = CoopEnv(1)
+filename = 'data/env3/need_to_fix_rewards/ruby_lucy3.csv'
+env = MyEnv(1)
 
 with open(filename, 'r') as f:
     for i in range(1, 11):
-        print("Round "+str(i)+":\n")
+        print("Round "+str(i)+":")
         values = f.readline().split(", ")
         state = env.init_state
         success = True
@@ -21,6 +21,14 @@ with open(filename, 'r') as f:
                 print(str((state, a1, a2, new_state)))
                 print(j)
                 success = False
+            if new_state == env.END_STATE:
+                if (state, a1, a2, new_state) in env.collab_state:
+                    if env.collab_state[(state, a1, a2, new_state)] != int(values[j+4]):
+                        print("should be "+str(env.collab_state[(state, a1, a2, new_state)]))
+                        success = False
+                elif int(values[j+4]) != -100:
+                    print("should be -100")
+                    success = False
             
             state = new_state
         if success:

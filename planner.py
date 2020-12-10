@@ -7,7 +7,7 @@ from scipy.special import log_softmax
 class Planner():
 
     def __init__(self, environment, p_coop=1, p_comp=1):
-        max_iter = 100
+        max_iter = 1000
         self.competitive_model = Competitive(environment, max_iter)
         self.competitive_model.train()
         self.cooperative_model = Cooperative(environment, max_iter)

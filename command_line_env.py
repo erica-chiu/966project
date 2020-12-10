@@ -3,8 +3,8 @@ from env2 import CompEnv
 from env3 import MyEnv
 import random
 
-envnum = 'env3'
-filename = "data/"+ envnum + "/jyen.csv"
+envnum = 'env2'
+filename = "data/"+ envnum + "/jma_wendy.csv"
 if '1' in envnum:
     env = CoopEnv(1)
 elif '2' in envnum:
@@ -97,10 +97,10 @@ with open(filename, "w+") as f:
             reward2 += possible_rewards[idx][1]
             print("\n")
             print("Reward A: "+str(reward1))
-            print("Reward B:" + str(reward2))
+            print("Reward B: " + str(reward2))
             if state == env.END_STATE:
                 if (prev_state, a, b, state) in env.collab_state:
-                    new_round.append(str(100))
+                    new_round.append(str(env.collab_state[(prev_state, a, b, state)]))
                 else:
                     new_round.append(str(-100))
                 print("End round\n")
