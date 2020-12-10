@@ -9,7 +9,7 @@ class Competitive():
         self.q_1 = {}
         self.discount = 0.9
         # self.u = {}
-        self.transition = environment.transition
+        self.transition = environment.transitions
         self.states = environment.states
         self.num_states = len(self.states)
         self.rewards = environment.rewards

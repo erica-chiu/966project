@@ -1,5 +1,5 @@
 
-class CoopEnv():
+class MyEnv():
     UP = 0
     RIGHT = 1
     DOWN = 2
@@ -8,19 +8,19 @@ class CoopEnv():
 
     def move(self, action, loc):
         if action == self.UP:
-            if loc < 3:
+            if loc < self.width:
                 return -1
-            return loc-3
+            return loc-self.width
         elif action == self.RIGHT:
-            if loc % 3 == 2:
+            if loc % self.width == (self.width-1):
                 return -1
             return loc + 1
         elif action == self.DOWN:
-            if loc > 5:
+            if loc > (self.height-1)*(self.width)-1:
                 return -1
-            return loc + 3
+            return loc + self.width
         elif action == self.LEFT:
-            if loc % 3 == 0:
+            if loc % self.width == 0:
                 return -1
             return loc - 1
 
@@ -32,25 +32,27 @@ class CoopEnv():
         self.actions = list(range(self.num_actions))
 
 
-        self.width = 3
-        self.height = 3
+        self.width = 4
+        self.height = 6
         self.END_STATE = (-1, -1)
         if agent_idx == 1:
-            self.loc1 = list(range(9))
-            self.loc1.remove(2)
-            self.loc2 = list(range(1,9))
-            self.end_goal = 2
-            self.other_goal = 0
-            self.init_state = (6, 8)
-
+            self.end_goals = [21, 22]
+            self.other_goals = [1, 2]
+            self.init_state = (2, 21)
+            self.loc1 = list(range(self.width*self.height))
+            [self.loc1.remove(i) for i in self.end_goals]
+            self.loc2 = list(range(self.width*self.height))
+            [self.loc2.remove(i) for i in self.other_goals]
+            
         else:
-            self.loc2 = list(range(9))
-            self.loc2.remove(2)
-            self.loc1 = list(range(1,9))
-            self.end_goal = 0
-            self.other_goal = 2
-            self.init_state = (8, 6)
-
+            self.end_goals = [1, 2]
+            self.other_goals = [21, 22]
+            self.init_state = (21, 2)
+            self.loc1 = list(range(self.width*self.height))
+            [self.loc1.remove(i) for i in self.end_goals]
+            self.loc2 = list(range(self.width*self.height))
+            [self.loc2.remove(i) for i in self.other_goals]
+        
         self.states = set()  #(loc1, loc2)
         for loc1 in self.loc1: 
             for loc2 in self.loc2:
@@ -58,8 +60,8 @@ class CoopEnv():
                     self.states.add((loc1,loc2))
         self.states.add(self.END_STATE)  # ending
 
-        self.goal1 = {self.end_goal: 10}
-        self.goal2 = {self.other_goal: 10}
+        self.goal1 = {self.end_goals[0]: 10, self.end_goals[1]: 20}
+        self.goal2 = {self.other_goals[0]: 10, self.other_goals[1]: 20}
         self.collab_state = set()
 
 
@@ -94,33 +96,23 @@ class CoopEnv():
                     old2 = s[1]
                     new1 = self.move(a1, old1)
                     new2 = self.move(a2, old2)
+                    reward = [0,0]
+                    if a1 != self.STAY:
+                        reward[0] = -1
+                    if a2 != self.STAY:
+                        reward[1] = -1
                     if new1 == -1 or new2 == -1:
                         self.transitions[(s, a1, a2, s)] = 1
-                        reward = [0,0]
-                        if a1 != self.STAY:
-                            reward[0] = -1
-                        if a2 != self.STAY:
-                            reward[1] = -1
                         self.rewards[(s, a1, a2, s)] = reward
                         continue
 
                     if old2 == new1 and old1 == new2:
                         self.transitions[(s, a1, a2, s)] = 1
-                        reward = [0,0]
-                        if a1 != self.STAY:
-                            reward[0] = -1
-                        if a2 != self.STAY:
-                            reward[1] = -1
                         self.rewards[(s, a1, a2, s)] = reward
                         continue
 
                     if new1 == new2 and (old1 == new1 or old2 == new2):
                         self.transitions[(s, a1, a2, s)] = 1
-                        reward = [0,0]
-                        if a1 != self.STAY:
-                            reward[0] = -1
-                        if a2 != self.STAY:
-                            reward[1] = -1
                         self.rewards[(s, a1, a2, s)] = reward
                         continue
                     
@@ -137,12 +129,12 @@ class CoopEnv():
                             reward1[1] = -1
                             reward2[1] = -1
                         
-                        if new2 == self.other_goal:
+                        if new2 in self.other_goals:
                             s1 = self.END_STATE
-                            reward1[1] = 10
-                        if new1 == self.end_goal:
+                            reward1[1] = self.goal2[new2]
+                        if new1 in self.end_goals:
                             s2 = self.END_STATE
-                            reward2[0] = 10
+                            reward2[0] = self.goal1[new1]
                         
                         self.transitions[(s, a1, a2, s1)] = 0.5
                         self.transitions[(s, a1, a2, s2)] = 0.5
@@ -152,19 +144,14 @@ class CoopEnv():
                         continue
 
                     s_ = (new1, new2)
-                    reward = [0,0]
-                    if a1 != self.STAY:
-                        reward[0] = -1
-                    if a2 != self.STAY:
-                        reward[1] = -1
-                    if new1 == self.end_goal or new2 == self.other_goal:
+                    if new1 in self.end_goals or new2 in self.other_goals:
                         s_ = self.END_STATE
-                    if new1 == self.end_goal:
-                        reward[0]= 10
-                    if new2 == self.other_goal:
-                        reward[1]= 10
-                    if new1 == self.end_goal and new2 == self.other_goal:
-                        self.collab_state.add((s, a1, a2, s_))
+                    if new1 in self.end_goals:
+                        reward[0]= self.goal1[new1]
+                    if new2 in self.other_goals:
+                        reward[1]= self.goal2[new2]
+                    if new1 in self.end_goals and new2 in self.other_goals:
+                        self.collab_state.add((s,a1,a2,s_))
                     self.transitions[(s, a1, a2, s_)] = 1
                     self.rewards[(s, a1, a2, s_)] = reward
 
