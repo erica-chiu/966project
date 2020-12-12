@@ -2,13 +2,13 @@ from competitive import Competitive
 from cooperative import Cooperative
 import random
 import math
-from scipy.special import log_softmax
+from scipy.special import log_softmax, softmax
 
 class Planner():
 
-    def __init__(self, environment, p_coop=1, p_comp=1):
-        max_iter = 1000
-        self.competitive_model = Competitive(environment, max_iter)
+    def __init__(self, environment, environment2, p_coop=1, p_comp=1):
+        max_iter = 100
+        self.competitive_model = Competitive(environment, environment2, max_iter)
         self.competitive_model.train()
         self.cooperative_model = Cooperative(environment, max_iter)
         self.cooperative_model.train()
@@ -31,7 +31,7 @@ class Planner():
             probs = log_softmax([coop, comp])
             total_coop += probs[0]
             total_comp += probs[1]
-        probs = log_softmax([total_coop, total_comp])
+        probs = softmax([total_coop, total_comp])
         if random.random() > probs[0]:
             return 1
         else: 

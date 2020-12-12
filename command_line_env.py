@@ -4,7 +4,7 @@ from env3 import MyEnv
 import random
 
 envnum = 'env2'
-filename = "data/"+ envnum + "/jma_wendy.csv"
+filename = "data/"+ envnum + "/jyen2.csv"
 if '1' in envnum:
     env = CoopEnv(1)
 elif '2' in envnum:
