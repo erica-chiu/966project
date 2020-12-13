@@ -49,7 +49,6 @@ class Planner():
                 else:
                     return -100
             state = next_state
-            print((a1,a2,state))
 
     
     def intention(self, rounds, coop_model, comp_model):

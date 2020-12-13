@@ -9,6 +9,6 @@ environment = CoopEnv(1)
 p = Planner(environment, CoopEnv(2))
 for a in environment.actions:
     print(a)
-    print(math.exp(p.competitive_model1.log_probs1[((3 ,4), a)]))
-    print(math.exp(p.cooperative_model1.log_probs[((3 ,4), a)]))
+    print(math.exp(p.competitive_model1.log_probs1[((6 ,8), a)]))
+    print(math.exp(p.cooperative_model1.log_probs[((6 ,8), a)]))
 

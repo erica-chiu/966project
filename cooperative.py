@@ -32,7 +32,7 @@ class Cooperative():
                         if (s,a1, a2) in self.q:
                             for s_ in self.states:
                                 if (s, a1, a2, s_) in self.transition:
-                                    max_val = 0
+                                    max_val = -100
                                     for a1_ in self.actions:
                                         for a2_ in self.actions:
                                             if self.q[(s_, a1_, a2_)] > max_val:

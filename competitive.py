@@ -62,7 +62,7 @@ class Competitive():
                             num_actions = 0
                             state_prob = 0
                             total_rewards = 0
-                            max_val = 0
+                            max_val = -100
                             for a2 in self.actions:
                                 if (s, a, a2, s_) in transition:
                                     num_actions += 1
@@ -97,7 +97,7 @@ class Competitive():
                             num_actions = 0
                             state_prob = 0
                             total_rewards = 0
-                            max_val = 0
+                            max_val = -100
                             for a2 in self.actions:
                                 if (s, a, a2, s_) in transition:
                                     num_actions += 1
@@ -114,8 +114,6 @@ class Competitive():
             if max_diff < 1e-5 and first != 0:
                 print("early")
                 break
-        for a in range(5):
-            print(probs[((3,5), a)])
 
         final_log_probs = {}
         for s in states:
