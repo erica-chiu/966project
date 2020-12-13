@@ -1,16 +1,16 @@
-from competitive import Competitive
+from increase_competitive import IncreaseCompetitive
 from cooperative import Cooperative
 import random
 import math
 from scipy.special import log_softmax, softmax
 
-class Planner():
+class IncreasePlanner():
 
     def __init__(self, environment, environment2, p_coop=1, p_comp=1):
         max_iter = 1000
-        self.competitive_model1 = Competitive(environment, environment2, max_iter)
+        self.competitive_model1 = IncreaseCompetitive(environment, environment2, max_iter)
         self.competitive_model1.train()
-        self.competitive_model2 = Competitive(environment2, environment, max_iter)
+        self.competitive_model2 = IncreaseCompetitive(environment2, environment, max_iter)
         self.competitive_model2.train()
         self.cooperative_model1 = Cooperative(environment, max_iter)
         self.cooperative_model1.train()

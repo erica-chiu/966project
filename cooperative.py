@@ -43,6 +43,8 @@ class Cooperative():
                             max_diff = max(max_diff, abs(new_q[(s,a1,a2)] - self.q[(s,a1,a2)]))
             self.q = new_q
             if max_diff < 1e-5 and first != 0:
+                print("coop early")
+                print(first)
                 break
         
         for s in self.states:

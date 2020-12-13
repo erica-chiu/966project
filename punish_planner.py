@@ -1,12 +1,13 @@
+from punish import Punish
 from competitive import Competitive
 from cooperative import Cooperative
 import random
 import math
 from scipy.special import log_softmax, softmax
 
-class Planner():
+class PunishPlanner():
 
-    def __init__(self, environment, environment2, p_coop=1, p_comp=1):
+    def __init__(self, environment, environment2, p_coop=1, p_comp=1, p_punish=1):
         max_iter = 1000
         self.competitive_model1 = Competitive(environment, environment2, max_iter)
         self.competitive_model1.train()
@@ -16,20 +17,26 @@ class Planner():
         self.cooperative_model1.train()
         self.cooperative_model2 = Cooperative(environment2, max_iter)
         self.cooperative_model2.train()
-        self.models1 = [self.cooperative_model1, self.competitive_model1]
-        self.models2 = [self.cooperative_model2, self.competitive_model2]
+        self.punish1 = Punish(environment, self.cooperative_model2, max_iter)
+        self.punish1.train()
+        self.punish2 = Punish(environment2, self.cooperative_model1, max_iter)
+        self.punish2.train()
+        
+        self.models1 = [self.cooperative_model1, self.competitive_model1, self.punish1]
+        self.models2 = [self.cooperative_model2, self.competitive_model2, self.punish2]
         self.environment1 = environment
         self.environment2 = environment2
         self.p_coop = p_coop
         self.p_comp = p_comp
+        self.p_punish = p_punish
 
     """
     0: coop
     1: comp
     """
     def infer(self, rounds1, rounds2):
-        model2 = self.models2[self.intention(rounds1, self.cooperative_model1, self.competitive_model1)]
-        model1 = self.models1[self.intention(rounds2, self.cooperative_model2, self.competitive_model2)]
+        model2 = self.models2[self.intention(rounds1, self.cooperative_model1, self.competitive_model1, self.punish1)]
+        model1 = self.models1[self.intention(rounds2, self.cooperative_model2, self.competitive_model2, self.punish2)]
 
         state = self.environment1.init_state
         while(True):
@@ -51,24 +58,20 @@ class Planner():
             state = next_state
 
     
-    def intention(self, rounds, coop_model, comp_model):
+    def intention(self, rounds, coop_model, comp_model, punish_model):
         if len(rounds) == 0:
-            return random.randint(0,1)
+            return random.randint(0,2)
         total_coop = 0
         total_comp = 0
+        total_punish = 0
         for round in rounds:
             coop = coop_model.step(round) + math.log(self.p_coop)
             comp = comp_model.step(round) + math.log(self.p_comp)
-            probs = log_softmax([coop, comp])
+            punish = punish_model.step(round) + math.log(self.p_punish)
+            probs = log_softmax([coop, comp, punish])
             total_coop += probs[0]
             total_comp += probs[1]
-        probs = softmax([total_coop, total_comp])
-        if random.random() < probs[0]:
-            return 0
-        else: 
-            return 1
-
-
-
-
+            total_punish += probs[2]
+        probs = softmax([total_coop, total_comp, total_punish])
+        return random.choices(range(3), probs)[0]
 

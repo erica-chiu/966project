@@ -2,7 +2,7 @@ import math
 from scipy.special import softmax, log_softmax
 import random
 
-class Competitive():
+class IncreaseCompetitive():
     def __init__(self, environment, environment2, max_iter=10000):
         self.beta = 4
         self.env1 = environment
@@ -36,8 +36,9 @@ class Competitive():
         # self.log_probs2 = {}
     
     def train(self):
-        q0 = self.train_q0(self.env2.transitions, self.env2.rewards, self.env2.states, self.total_prob2)
-        self.log_probs1 = self.train_oneside(self.env1.transitions, self.env1.rewards, self.env1.states, q0)
+        q0 = self.train_q0(self.env1.transitions, self.env1.rewards, self.env1.states, self.total_prob1)
+        q1 = self.train_oneside(self.env2.transitions, self.env2.rewards, self.env2.states, q0)
+        self.log_probs1 = self.train_oneside(self.env1.transitions, self.env1.rewards, self.env1.states, q1)
 
     def train_q0(self, transition, rewards, states, total_prob):
         q0 = {}
@@ -73,21 +74,20 @@ class Competitive():
                 break
             elif first == self.max_iter-1:
                 print(max_diff)
-        return q0
-
-
-    def train_oneside(self, transition, rewards, states, q0):
-        q1 = {}     
         probs = {}
         for s in states:
             relative_probs = []
             for a in self.actions:
-                relative_probs.append(self.beta*q0[((s[1], s[0]),a)])
-            relative_probs = softmax(relative_probs)
+                relative_probs.append(self.beta*q0[(s,a)])
+            relative_probs = log_softmax(relative_probs)
             for j, a in enumerate(self.actions):
                 probs[(s,a)] = relative_probs[j]
         self.test_probs = probs
+        return probs
 
+
+    def train_oneside(self, transition, rewards, states, probs):
+        q1 = {}     
         for first in range(self.max_iter):
             new_q1 = {}
             max_diff = 0
@@ -103,7 +103,7 @@ class Competitive():
                             for a2 in self.actions:
                                 if (s, a, a2, s_) in transition:
                                     num_actions += 1
-                                    state_prob += transition[(s,a,a2,s_)] * probs[(s,a2)]
+                                    state_prob += transition[(s,a,a2,s_)] * math.exp(probs[((s[1], s[0]),a2)])
                                     total_rewards += rewards[(s,a,a2,s_)][0]
                                     if q1[(s_,a2)] > max_val:
                                         max_val = q1[(s_,a2)]
