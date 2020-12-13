@@ -1,6 +1,6 @@
 import random
 import math
-from scipy.special import log_softmax
+from scipy.special import log_softmax, softmax
 
 class Cooperative():
     def __init__(self, environment, max_iter=10000):
@@ -50,10 +50,12 @@ class Cooperative():
             for a1 in self.actions:
                 for a2 in self.actions:
                     relative_probs.append(self.beta*self.q[(s,a1, a2)])
-            relative_probs = log_softmax(relative_probs)
+            relative_probs = softmax(relative_probs)
             for j, a1 in enumerate(self.actions):
+                self.log_probs[(s, a1)] = 0
                 for k, a2 in enumerate(self.actions):
-                    self.log_probs[(s, a1, a2)] = relative_probs[j*self.num_actions + k]
+                    self.log_probs[(s, a1)] += relative_probs[j*self.num_actions + k]
+                self.log_probs[(s,a1)] = math.log(self.log_probs[(s,a1)])
     
     """
     round should be list of (action pair, state)
@@ -62,6 +64,12 @@ class Cooperative():
         state = self.init_state
         prob = 0
         for ((a1, a2), new_state) in round:
-            prob += self.log_probs[(state,a1,a2)] + math.log(self.transition[(state,a1,a2,new_state)])
+            prob += self.log_probs[(state,a1)]
             state = new_state
         return prob
+    
+    def next_move(self, state):
+        moves = []
+        for a in self.actions:
+            moves.append(math.exp(self.log_probs[(state, a)]))
+        return random.choices(range(self.num_actions), moves)[0]

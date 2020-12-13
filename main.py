@@ -18,23 +18,27 @@ for env_data, environment, environment2 in envs:
         for filename in os.listdir(data+env_data):
             print(filename)
 
-            rounds = []
+            rounds1 = []
+            rounds2 = []
             results = []
             predictions = []
             with open(data+env_data+"/"+filename, 'r') as f:
                 for _ in range(num_rounds):
                     round_str = f.readline().split(", ")
                     result = int(round_str[-1])
-                    round = []
+                    round1 = []
+                    round2 = []
                     for i in range(0, len(round_str)-1, 4):
                         a1 = int(round_str[i])
                         a2 = int(round_str[i+1])
                         loc1 = int(round_str[i+2])
                         loc2 = int(round_str[i+3])
-                        round.append(((a1, a2), (loc1, loc2)))
-                    rounds.append(round)
+                        round1.append(((a1, a2), (loc1, loc2)))
+                        round2.append(((a2, a1), (loc2, loc1)))
+                    rounds1.append(round1)
+                    rounds2.append(round2)
                     results.append(str(result))
-                    prediction = planner.infer(rounds)
+                    prediction = planner.infer(rounds1, rounds2)
                     predictions.append(str(prediction))
             r.write(", ".join(results)+"\n")
             r.write(", ".join(predictions)+"\n")

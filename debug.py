@@ -5,12 +5,10 @@ from planner import Planner
 import math
 
 
-environment = CompEnv(1)
-p = Planner(environment, CompEnv(2))
+environment = CoopEnv(1)
+p = Planner(environment, CoopEnv(2))
 for a in environment.actions:
     print(a)
-    print(math.exp(p.competitive_model.log_probs1[((2 ,3), a)]))
-    print(math.exp(p.competitive_model.log_probs2[((3,2), a)]))
-    for a2 in environment.actions:
-        print((a,a2))
-        print(math.exp(p.cooperative_model.log_probs[((2 ,3), a, a2)]))
+    print(math.exp(p.competitive_model1.log_probs1[((3 ,4), a)]))
+    print(math.exp(p.cooperative_model1.log_probs[((3 ,4), a)]))
+

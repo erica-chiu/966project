@@ -1,11 +1,11 @@
 import math
 from scipy.special import softmax, log_softmax
+import random
 
 class Competitive():
-    def __init__(self, environment, environment2, max_iter=10000):
+    def __init__(self, environment, max_iter=10000):
         self.beta = 4
         self.env1 = environment
-        self.env2 = environment2
         self.init_state = environment.init_state
         self.actions = environment.actions
         self.num_actions = len(self.actions)
@@ -30,22 +30,22 @@ class Competitive():
                         if (s, a, a2, s_) in self.env1.transitions:
                             self.total_prob1[(s,a)] += self.env1.transitions[(s,a,a2,s_)]
         
-        self.total_prob2 = {}  #(state, action)
+        # self.total_prob2 = {}  #(state, action)
 
-        for s in self.env2.states:
-            for a in self.actions:
-                self.total_prob2[(s,a)] = 0
-                for s_ in self.env2.states:
-                    for a2 in self.actions:
-                        if (s, a, a2, s_) in self.env2.transitions:
-                            self.total_prob2[(s,a)] += self.env2.transitions[(s,a,a2,s_)]
+        # for s in self.env2.states:
+        #     for a in self.actions:
+        #         self.total_prob2[(s,a)] = 0
+        #         for s_ in self.env2.states:
+        #             for a2 in self.actions:
+        #                 if (s, a, a2, s_) in self.env2.transitions:
+        #                     self.total_prob2[(s,a)] += self.env2.transitions[(s,a,a2,s_)]
 
         self.log_probs1 = {}
-        self.log_probs2 = {}
+        # self.log_probs2 = {}
     
     def train(self):
         self.log_probs1 = self.train_oneside(self.env1.transitions, self.env1.rewards, self.env1.states, self.total_prob1)
-        self.log_probs2 = self.train_oneside(self.env2.transitions, self.env2.rewards, self.env2.states, self.total_prob2)
+        #self.log_probs2 = self.train_oneside(self.env2.transitions, self.env2.rewards, self.env2.states, self.total_prob2)
 
     def train_oneside(self, transition, rewards, states, total_prob):
         q0 = {}
@@ -112,8 +112,11 @@ class Competitive():
                         max_diff = max(max_diff, abs(q1[(s,a)] - new_q1[(s,a)]))
             q1 = new_q1
             if max_diff < 1e-5 and first != 0:
+                print("early")
                 break
-        
+        for a in range(5):
+            print(probs[((3,5), a)])
+
         final_log_probs = {}
         for s in states:
             relative_probs = []
@@ -132,6 +135,12 @@ class Competitive():
         state = self.init_state
         prob = 0
         for ((a1, a2), new_state) in round:
-            prob += self.log_probs1[(state,a1)]+ self.log_probs2[((state[1], state[0]),a2)] + math.log(self.transition[(state,a1,a2,new_state)])
+            prob += self.log_probs1[(state,a1)]
             state = new_state
         return prob
+
+    def next_move(self, state):
+        moves = []
+        for a in self.actions:
+            moves.append(math.exp(self.log_probs1[(state, a)]))
+        return random.choices(range(self.num_actions), moves)[0]
