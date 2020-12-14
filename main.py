@@ -6,8 +6,19 @@ from punish_planner import PunishPlanner
 from increase_planner import IncreasePlanner
 import os
 
+choice = 'og'
+
+if choice == 'og':
+    result_dir = 'results/'
+    planner_type = Planner
+elif choice == 'comp2':
+    result_dir = 'results/increase'
+    planner_type = IncreasePlanner
+elif choice == 'punish':
+    result_dir = 'results/punish'
+    planner_type = PunishPlanner
+
 data = 'data/'
-result_dir = 'results/increase/'
 env1 = ('env1', CoopEnv(1), CoopEnv(2))
 env2 = ('env2', CompEnv(1), CompEnv(2))
 env3 = ('env3', MyEnv(1), MyEnv(2))
@@ -15,7 +26,7 @@ envs = [env1, env2, env3]
 num_rounds = 10
 
 for env_data, environment, environment2 in envs:
-    planner = IncreasePlanner(environment, environment2)
+    planner = Planner(environment, environment2)
     with open(result_dir+env_data+".csv", "w+") as r:
         for filename in os.listdir(data+env_data):
             print(filename)
