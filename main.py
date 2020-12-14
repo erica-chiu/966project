@@ -4,19 +4,23 @@ from env3 import MyEnv
 from planner import Planner
 from punish_planner import PunishPlanner
 from increase_planner import IncreasePlanner
+from punish_comp2_planner import PunishComp2Planner
 import os
 
-choice = 'og'
+choice = 'pc2'
 
 if choice == 'og':
     result_dir = 'results/'
     planner_type = Planner
 elif choice == 'comp2':
-    result_dir = 'results/increase'
+    result_dir = 'results/increase/'
     planner_type = IncreasePlanner
 elif choice == 'punish':
-    result_dir = 'results/punish'
+    result_dir = 'results/punish/'
     planner_type = PunishPlanner
+elif choice == 'pc2':
+    result_dir = 'results/punish_comp/'
+    planner_type = PunishComp2Planner
 
 data = 'data/'
 env1 = ('env1', CoopEnv(1), CoopEnv(2))

@@ -3,12 +3,14 @@ from sklearn.cluster import KMeans
 import numpy as np
 from scipy import stats
 
-fig, axs = plt.subplots(3, 4)
 
 files = ['env1.csv', 'env2.csv', 'env3.csv']
-folders = ['results/', 'results/increase/', 'results/punish/']
+folders = ['results/', 'results/increase/', 'results/punish/', 'results/punish_comp/']
 num_ex = 8
 len_ex = 10
+
+fig, axs = plt.subplots(len(files), len(folders)+1)
+
 
 
 def convert_from_reward_to_binary(datum):
@@ -77,9 +79,10 @@ for ax in axs.flat:
     ax.label_outer()
 
 axs[0,0].set_title('Human Data')
-axs[0,1].set_title('OG Model')
-axs[0,2].set_title('COMP2 Model')
-axs[0,3].set_title('PUNISH Model')
+axs[0,1].set_title('CC')
+axs[0,2].set_title('COMP2')
+axs[0,3].set_title('CCP')
+axs[0,4].set_title('COMP2+CCP')
 axs[0,0].set(ylabel='Environment 1')
 axs[1,0].set(ylabel='Environment 2')
 axs[2,0].set(ylabel='Environment 3')
@@ -91,7 +94,7 @@ plt.savefig("results/avg.png")
 
 #histogram
 plt.figure()
-fig, axs = plt.subplots(3,4)
+fig, axs = plt.subplots(len(files),len(folders)+1)
 percent_collabs = []
 for i in range(len(stuffs)):
     percent_collabs.append([])
@@ -105,9 +108,10 @@ for ax in axs.flat:
     ax.label_outer()
 
 axs[0,0].set_title('Human Data')
-axs[0,1].set_title('OG Model')
-axs[0,2].set_title('COMP2 Model')
-axs[0,3].set_title('PUNISH Model')
+axs[0,1].set_title('CC')
+axs[0,2].set_title('COMP2')
+axs[0,3].set_title('CCP')
+axs[0,4].set_title('COMP2+CCP')
 axs[0,0].set(ylabel='Environment 1')
 axs[1,0].set(ylabel='Environment 2')
 axs[2,0].set(ylabel='Environment 3')
@@ -119,7 +123,7 @@ plt.savefig("results/histo.png")
 
 #scatter
 plt.figure()
-fig, axs = plt.subplots(3,3)
+fig, axs = plt.subplots(len(files),len(folders))
 for i in range(len(stuffs)):
     for j in range(1, len(stuffs[i])):
         model_collab = percent_collabs[i][j]
@@ -131,9 +135,10 @@ for i in range(len(stuffs)):
 for ax in axs.flat:
     ax.label_outer()
 
-axs[0,0].set_title('OG Model')
-axs[0,1].set_title('COMP2 Model')
-axs[0,2].set_title('PUNISH Model')
+axs[0,0].set_title('CC')
+axs[0,1].set_title('COMP2')
+axs[0,2].set_title('CCP')
+axs[0,3].set_title('COMP2+CCP')
 axs[0,0].set(ylabel='Environment 1')
 axs[1,0].set(ylabel='Environment 2')
 axs[2,0].set(ylabel='Environment 3')
